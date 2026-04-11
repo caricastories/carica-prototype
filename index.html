@@ -3,324 +3,1731 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Carica Stories Prototype</title>
+  <title>Carica Story Hub</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@500;600;700;800&family=Nunito:wght@400;500;600;700;800&display=swap');
+
     :root {
-      --yellow: #ffd129;
-      --blue: #5c60f9;
-      --bg: #fffdf6;
-      --cream: #fffaf0;
-      --ink: #222;
-      --muted: #666;
-      --border: #e7e3db;
-      --shadow: 0 10px 30px rgba(0,0,0,.08);
-      --radius: 28px;
+      --brand-purple: #635cf2;
+      --brand-purple-strong: #5149dc;
+      --brand-purple-soft: #f1efff;
+      --brand-purple-tint: rgba(99, 92, 242, 0.12);
+      --brand-yellow: #f4cf58;
+      --brand-yellow-strong: #ecbf2f;
+      --brand-yellow-soft: #fff7d7;
+      --brand-mint-soft: #ebf8f2;
+      --bg: #fbf7f0;
+      --bg-2: #f7f1e8;
+      --surface: rgba(255,255,255,0.9);
+      --surface-strong: rgba(255,255,255,0.97);
+      --surface-soft: #fcfaf6;
+      --ink: #2a2935;
+      --muted: #6c6b7d;
+      --muted-2: #8a8798;
+      --line: #e9e1d5;
+      --line-strong: #ddd2c2;
+      --shadow-xs: 0 6px 14px rgba(42, 41, 53, 0.04);
+      --shadow-sm: 0 12px 28px rgba(42, 41, 53, 0.06);
+      --shadow-md: 0 22px 48px rgba(42, 41, 53, 0.08);
+      --radius-xl: 32px;
+      --radius-lg: 26px;
+      --radius-md: 20px;
+      --radius-sm: 14px;
+      --max-width: 1280px;
+      --reading-width: 68ch;
+      --transition-fast: 160ms ease;
+      --transition-soft: 220ms ease;
     }
+
     * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
     body {
       margin: 0;
-      font-family: Inter, Arial, sans-serif;
+      font-family: 'Nunito', Arial, sans-serif;
       color: var(--ink);
-      background: linear-gradient(180deg, #fffdf6 0%, #fffaf0 50%, #f4f5ff 100%);
+      background:
+        radial-gradient(circle at 8% 10%, rgba(244, 207, 88, 0.18), transparent 22%),
+        radial-gradient(circle at 88% 18%, rgba(99, 92, 242, 0.08), transparent 24%),
+        radial-gradient(circle at 92% 82%, rgba(244, 207, 88, 0.10), transparent 18%),
+        linear-gradient(180deg, #fffdf9 0%, var(--bg) 42%, #f5f1fb 100%);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
     }
+
+    body::before,
+    body::after {
+      content: '';
+      position: fixed;
+      z-index: -1;
+      pointer-events: none;
+      filter: blur(14px);
+      opacity: .55;
+    }
+
+    body::before {
+      width: 360px;
+      height: 360px;
+      left: -120px;
+      top: 120px;
+      border-radius: 42% 58% 60% 40% / 42% 42% 58% 58%;
+      background: linear-gradient(135deg, rgba(99,92,242,.14), rgba(244,207,88,.12));
+    }
+
+    body::after {
+      width: 300px;
+      height: 300px;
+      right: -90px;
+      bottom: 120px;
+      border-radius: 64% 36% 40% 60% / 52% 54% 46% 48%;
+      background: linear-gradient(135deg, rgba(244,207,88,.12), rgba(99,92,242,.08));
+    }
+
     .wrap {
-      max-width: 1400px;
+      max-width: var(--max-width);
       margin: 0 auto;
-      padding: 24px;
+      padding: 28px 24px 44px;
     }
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 24px;
-      flex-wrap: wrap;
-    }
-    .eyebrow { color: #777; font-size: 14px; }
-    h1, h2, h3 {
-      font-family: Georgia, 'Times New Roman', serif;
+
+    .hidden { display: none !important; }
+
+    h1, h2, h3, .card-title, .option-title, .episode-title, .recommendation-title, .cover-pill, .mock-cover-title {
+      font-family: 'DM Sans', Arial, sans-serif;
+      color: var(--ink);
+      letter-spacing: -0.035em;
       margin: 0;
     }
-    h1 { font-size: clamp(32px, 5vw, 52px); }
-    h2 { font-size: clamp(24px, 3vw, 36px); }
-    .btn {
-      border: 0;
-      border-radius: 16px;
-      padding: 12px 18px;
+
+    h1 {
+      font-size: clamp(36px, 4vw, 48px);
+      line-height: 1.02;
       font-weight: 700;
-      cursor: pointer;
-      transition: .2s ease;
-      text-decoration: none;
+    }
+
+    h2 {
+      font-size: clamp(30px, 3vw, 40px);
+      line-height: 1.08;
+      font-weight: 700;
+    }
+
+    h3 {
+      font-size: clamp(24px, 2.2vw, 30px);
+      line-height: 1.12;
+      font-weight: 700;
+    }
+
+    .eyebrow,
+    .product-subtitle,
+    .crumb,
+    .badge,
+    .mini-meta-item,
+    .recommendation-kicker,
+    .episode-kicker,
+    .field-label,
+    .choice-chip,
+    .btn {
+      font-family: 'DM Sans', Arial, sans-serif;
+    }
+
+    .topbar-shell {
+      position: sticky;
+      top: 10px;
+      z-index: 30;
+      margin-bottom: 18px;
+      backdrop-filter: blur(14px);
+    }
+
+    .topbar-stack {
+      display: grid;
+      gap: 0;
+    }
+
+    .topbar-subnav.hidden {
+      display: none !important;
+    }
+
+    .topbar-subnav {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+      width: 100%;
+      margin-top: 0;
+      padding-top: 0;
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    .subnav-logo {
+      width: 92px;
+      height: 92px;
+      border-radius: 24px 24px 18px 28px;
+      border: 1px solid rgba(99,92,242,.08);
+      background: rgba(255,255,255,.72);
+      box-shadow: var(--shadow-xs);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 14px;
+      grid-column: 1;
+      grid-row: 1;
+      justify-self: start;
+      align-self: start;
+    }
+
+    .subnav-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .subnav-nav {
+      display: grid;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: 104px minmax(0, 1fr) auto;
+      align-items: start;
+      gap: 18px;
+      padding: 18px 20px;
+      border-radius: 24px 24px 20px 28px;
+      background: rgba(255,255,255,0.78);
+      border: 1px solid rgba(255,255,255,0.7);
+      box-shadow: var(--shadow-xs);
+    }
+
+    .brand-column {
+      display: none;
+    }
+
+    .brand-mark {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      width: fit-content;
+    }
+
+    .brand-mark-icon {
+      width: 28px;
+      height: 28px;
+      object-fit: contain;
+      display: block;
+      flex: 0 0 auto;
+    }
+
+    .topbar-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: flex-end;
+      justify-content: flex-start;
+      margin-left: auto;
+      width: auto;
+      grid-column: 3;
+      grid-row: 1;
+      align-self: start;
+    }
+
+    .icon-btn {
+      width: auto;
+      min-width: unset;
+      min-height: auto;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(99,92,242,.09);
+      border: 1px solid rgba(99,92,242,.16);
+      color: var(--brand-purple);
+      box-shadow: none;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .icon-btn:hover {
+      background: rgba(99,92,242,.13);
+      border-color: rgba(99,92,242,.24);
+      color: var(--brand-purple-strong);
+      box-shadow: var(--shadow-xs);
+    }
+
+    .icon-btn:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+    .btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
+      min-height: 46px;
+      padding: 12px 18px;
+      border-radius: 16px;
+      border: 1px solid transparent;
+      text-decoration: none;
+      font-size: 15px;
+      line-height: 1.2;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), opacity var(--transition-fast);
     }
-    .btn:hover { transform: translateY(-1px); }
-    .btn-blue { background: var(--blue); color: white; }
-    .btn-yellow { background: var(--yellow); color: var(--ink); }
-    .btn-outline { background: white; color: var(--ink); border: 1px solid var(--border); }
-    .panel {
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-xs);
+    }
+
+    .btn:focus-visible,
+    .crumb-link:focus-visible,
+    .choice-chip:focus-visible,
+    .text-input:focus-visible,
+    .select-input:focus-visible,
+    .textarea-input:focus-visible {
+      outline: 0;
+      box-shadow: 0 0 0 4px rgba(99,92,242,.16);
+      border-color: rgba(99,92,242,.34);
+    }
+
+    .btn-primary {
+      color: white;
+      background: linear-gradient(135deg, var(--brand-purple) 0%, var(--brand-purple-strong) 100%);
+      border-color: rgba(99,92,242,.28);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #5b53ea 0%, #4a42d7 100%);
+    }
+
+    .btn-secondary {
+      color: var(--brand-purple);
+      background: rgba(99,92,242,.06);
+      border-color: rgba(99,92,242,.14);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(99,92,242,.1);
+    }
+
+    .btn-accent {
+      color: #433600;
+      background: linear-gradient(135deg, var(--brand-yellow) 0%, #f0bf32 100%);
+      border-color: rgba(244,207,88,.4);
+    }
+
+    .btn-accent:hover {
+      background: linear-gradient(135deg, #efc63f 0%, #e8b923 100%);
+    }
+
+    .btn-ghost {
+      color: var(--ink);
       background: rgba(255,255,255,.84);
-      border: 1px solid rgba(255,255,255,.7);
-      border-radius: 32px;
-      box-shadow: var(--shadow);
-      padding: 28px;
+      border-color: rgba(42,41,53,.08);
     }
+
+    .btn-ghost:hover {
+      background: rgba(255,255,255,.98);
+      border-color: rgba(99,92,242,.14);
+      color: var(--brand-purple);
+    }
+
+    .panel,
+    .story-layout,
+    .loading-card,
+    .onboarding-box,
+    .option-card,
+    .story-bubble,
+    .episode-card,
+    .recommendation-card,
+    .cover {
+      animation: fadeUp .28s ease both;
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid rgba(255,255,255,.76);
+      border-radius: 30px 30px 24px 34px;
+      box-shadow: var(--shadow-md);
+      padding: 30px;
+      backdrop-filter: blur(10px);
+    }
+
     .badge {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      background: rgba(255,209,41,.15);
-      border: 1px solid rgba(255,209,41,.45);
+      padding: 7px 12px;
       border-radius: 999px;
-      padding: 8px 12px;
+      background: rgba(99,92,242,.06);
+      border: 1px solid rgba(99,92,242,.12);
+      color: #565879;
       font-size: 14px;
-      color: #444;
+      line-height: 1.2;
+      font-weight: 700;
     }
+
+    .badge-accent {
+      background: rgba(244,207,88,.16);
+      border-color: rgba(244,207,88,.3);
+      color: #6b5917;
+    }
+
     .desc {
       margin-top: 12px;
-      max-width: 800px;
+      max-width: var(--reading-width);
+      font-size: 19px;
+      line-height: 1.78;
       color: var(--muted);
-      line-height: 1.7;
+    }
+
+    .desc-sm {
+      font-size: 15px;
+      line-height: 1.65;
+      color: var(--muted-2);
+      max-width: 64ch;
+    }
+
+    .loading-wrap {
+      min-height: calc(100vh - 48px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .loading-card {
+      position: relative;
+      width: min(780px, 100%);
+      padding: 46px 34px;
+      border-radius: 36px 36px 28px 42px;
+      background:
+        radial-gradient(circle at top right, rgba(244,207,88,.18), transparent 26%),
+        radial-gradient(circle at bottom left, rgba(99,92,242,.08), transparent 28%),
+        rgba(255,255,255,.92);
+      border: 1px solid rgba(255,255,255,.86);
+      box-shadow: var(--shadow-md);
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .loading-card::before {
+      content: '';
+      position: absolute;
+      inset: 18px auto auto 18px;
+      width: 110px;
+      height: 110px;
+      border-radius: 40% 60% 58% 42% / 44% 38% 62% 56%;
+      background: rgba(244,207,88,.12);
+      z-index: 0;
+    }
+
+    .loading-card > * { position: relative; z-index: 1; }
+
+    .loading-sub {
+      margin: 14px auto 0;
+      max-width: 620px;
       font-size: 18px;
+      line-height: 1.72;
+      color: var(--muted);
     }
-    .grid-books {
+
+    .loading-track {
+      width: 100%;
+      height: 14px;
+      margin: 30px auto 18px;
+      background: #edeaf8;
+      border-radius: 999px;
+      border: 1px solid rgba(99,92,242,.08);
+      overflow: hidden;
+    }
+
+    .loading-fill {
+      width: 0%;
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--brand-yellow) 0%, var(--brand-purple) 100%);
+      transition: width .1s linear;
+    }
+
+    .developed-by {
+      margin-top: 28px;
+      color: var(--muted-2);
+      font-size: 13px;
+      line-height: 1.2;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-family: 'DM Sans', Arial, sans-serif;
+      font-weight: 700;
+    }
+
+    .loading-hero-brand {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      width: 100%;
+    }
+
+    .loading-hero-logo-frame {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 260px;
+      min-height: 92px;
+      padding: 16px 22px;
+      background: rgba(255,255,255,.84);
+      border: 1px solid rgba(42,41,53,.08);
+      border-radius: 26px;
+      box-shadow: var(--shadow-xs);
+    }
+
+    .loading-hero-logo {
+      display: block;
+      max-width: 280px;
+      width: 100%;
+      height: auto;
+      object-fit: contain;
+    }
+
+    .loading-hero-fallback {
+      display: none;
+      font-family: 'DM Sans', Arial, sans-serif;
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .logo-sub {
+      font-family: 'DM Sans', Arial, sans-serif;
+      font-size: 12px;
+      line-height: 1.2;
+      font-weight: 700;
+      letter-spacing: .08em;
+      color: #646580;
+      text-transform: uppercase;
+    }
+
+    .logo-made {
+      font-family: 'DM Sans', Arial, sans-serif;
+      font-size: 13px;
+      line-height: 1.2;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .developed-logo-frame {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 140px;
+      min-height: 42px;
+      padding: 8px 12px;
+      margin-top: 10px;
+      background: rgba(255,255,255,.72);
+      border: 1px solid rgba(42,41,53,.08);
+      border-radius: 16px;
+      box-shadow: var(--shadow-xs);
+    }
+
+    .developed-logo-image {
+      display: block;
+      max-width: 120px;
+      width: 100%;
+      height: auto;
+      object-fit: contain;
+    }
+
+    .developed-logo-fallback {
+      display: none;
+      font-family: 'DM Sans', Arial, sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .onboarding-shell {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 24px;
-      margin-top: 22px;
+      gap: 22px;
     }
-    .grid-modules {
+
+    .onboarding-card {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 22px;
+      align-items: start;
+    }
+
+    .onboarding-copy {
+      max-width: 860px;
+      padding: 4px 2px 0;
+    }
+
+    .onboarding-copy p {
+      margin: 12px 0 0;
+      font-size: 16px;
+      line-height: 1.68;
+      color: var(--muted);
+      max-width: none;
+      white-space: nowrap;
+    }
+
+    .onboarding-options {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 24px;
-      margin-top: 22px;
+      gap: 18px;
     }
-    .cover {
+
+    .onboarding-option {
       position: relative;
-      overflow: hidden;
-      border-radius: var(--radius);
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow);
-      min-height: 430px;
-      background: linear-gradient(180deg, var(--soft, #fff4bf), var(--cream));
-    }
-    .cover-top {
-      position: absolute;
-      inset: 0 0 auto 0;
-      height: 64px;
-      background: var(--accent, var(--blue));
-    }
-    .cover-pill {
-      position: absolute;
-      left: 50%; top: 30px;
-      transform: translateX(-50%);
-      max-width: 86%;
-      background: var(--yellow);
-      color: var(--ink);
-      border-radius: 999px;
-      padding: 10px 18px;
-      text-align: center;
-      font-weight: 700;
-      line-height: 1.3;
-      box-shadow: 0 4px 12px rgba(0,0,0,.08);
-      font-size: 14px;
-    }
-    .cover-inner {
-      position: absolute;
-      inset: 64px 18px 18px 18px;
-      border-radius: 24px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,.78);
-      padding: 18px;
+      padding: 24px;
+      border-radius: 28px 28px 22px 30px;
+      background: var(--surface-strong);
+      border: 1px solid rgba(99,92,242,.08);
+      box-shadow: var(--shadow-sm);
       display: flex;
       flex-direction: column;
+      gap: 14px;
+      min-height: 238px;
+      overflow: hidden;
+      transition: transform var(--transition-soft), box-shadow var(--transition-soft), border-color var(--transition-soft), background-color var(--transition-soft);
     }
-    .cover-label {
+
+    .onboarding-option::before {
+      content: '';
+      position: absolute;
+      right: -18px;
+      top: -18px;
+      width: 92px;
+      height: 92px;
+      border-radius: 44% 56% 58% 42% / 42% 38% 62% 58%;
+      background: rgba(99,92,242,.06);
+      pointer-events: none;
+    }
+
+    .onboarding-option:nth-child(1)::before { background: rgba(244,207,88,.14); }
+    .onboarding-option:nth-child(2)::before { background: rgba(99,92,242,.08); }
+    .onboarding-option:nth-child(3)::before { background: rgba(244,207,88,.1); }
+
+    .onboarding-option:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 18px 34px rgba(42,41,53,.08);
+      border-color: rgba(99,92,242,.14);
+    }
+
+    .onboarding-option-icon {
+      position: relative;
+      font-size: 32px;
+      line-height: 1;
+      z-index: 1;
+      width: fit-content;
+    }
+
+    .onboarding-option-title {
+      position: relative;
+      font-size: 28px;
+      line-height: 1.08;
+      font-weight: 700;
+      z-index: 1;
+    }
+
+    .onboarding-option-desc {
+      position: relative;
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--muted);
+      z-index: 1;
+    }
+
+    .onboarding-option .btn {
+      position: relative;
+      margin-top: auto;
+      width: 100%;
+      z-index: 1;
+    }
+
+    .guided-form-shell,
+    .recommendation-shell {
+      display: grid;
+      gap: 14px;
+    }
+
+    .guided-form-shell.hidden,
+    .recommendation-shell.hidden {
+      display: none !important;
+    }
+
+    .onboarding-box,
+    .recommendation-card {
+      background: var(--surface-strong);
+      border: 1px solid rgba(99,92,242,.08);
+      border-radius: 28px 28px 22px 32px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .onboarding-box {
+      padding: 24px;
+    }
+
+    .field-group { margin-bottom: 20px; }
+
+    .field-label {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 15px;
+      line-height: 1.35;
+      font-weight: 700;
+      color: #333445;
+    }
+
+    .text-input,
+    .select-input,
+    .textarea-input {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.98);
+      font: inherit;
+      font-size: 16px;
+      line-height: 1.5;
+      color: var(--ink);
+      outline: none;
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);
+    }
+
+    .textarea-input {
+      min-height: 112px;
+      resize: vertical;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .choice-chip {
+      min-height: 42px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(42,41,53,.08);
+      background: rgba(255,255,255,.94);
+      color: #52546d;
+      font-size: 14px;
+      line-height: 1.2;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+    }
+
+    .choice-chip:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-xs);
+      border-color: rgba(99,92,242,.18);
+    }
+
+    .choice-chip.active {
+      background: linear-gradient(135deg, rgba(99,92,242,.12), rgba(99,92,242,.06));
+      border-color: rgba(99,92,242,.22);
+      color: var(--brand-purple);
+    }
+
+    .hint {
+      margin-top: 8px;
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--muted-2);
+    }
+
+    .recommendation-card {
+      display: grid;
+      grid-template-columns: 156px 1fr;
+      gap: 18px;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .recommendation-copy {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .recommendation-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      align-self: flex-start;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: rgba(99,92,242,.07);
+      border: 1px solid rgba(99,92,242,.12);
+      color: #55587c;
+      font-size: 14px;
+      line-height: 1.2;
+      font-weight: 700;
+    }
+
+    .recommendation-title {
+      font-size: 28px;
+      line-height: 1.06;
+      font-weight: 700;
+    }
+
+    .recommendation-reason {
       display: inline-flex;
       align-items: center;
       align-self: flex-start;
       gap: 8px;
-      font-size: 12px;
-      color: #666;
-      background: white;
-      border: 1px solid var(--border);
+      padding: 8px 12px;
       border-radius: 999px;
-      padding: 6px 10px;
-    }
-    .cover-title {
-      margin-top: 14px;
-      font-family: Georgia, 'Times New Roman', serif;
-      font-size: 24px;
-      line-height: 1.15;
-    }
-    .cover-subtitle {
-      margin-top: 10px;
+      background: rgba(244,207,88,.2);
+      border: 1px solid rgba(244,207,88,.32);
+      color: #6f5b12;
       font-size: 14px;
-      color: var(--muted);
-      line-height: 1.6;
+      line-height: 1.2;
+      font-weight: 700;
     }
+
+    .recommendation-desc {
+      max-width: 58ch;
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--muted);
+    }
+
+    .recommendation-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 2px;
+    }
+
+    .breadcrumb {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+      padding: 9px 14px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.68);
+      border: 1px solid rgba(99,92,242,.08);
+      box-shadow: var(--shadow-xs);
+      backdrop-filter: blur(10px);
+    }
+
+    .crumb {
+      display: inline-flex;
+      align-items: center;
+      color: #5f6076;
+      font-size: 14px;
+      line-height: 1.3;
+      font-weight: 600;
+    }
+
+    .crumb-link {
+      background: transparent;
+      border: 0;
+      padding: 0;
+      margin: 0;
+      font: inherit;
+      color: inherit;
+      cursor: pointer;
+      text-decoration: none;
+      border-radius: 8px;
+      transition: color var(--transition-fast), opacity var(--transition-fast);
+    }
+
+    .crumb-link:hover {
+      color: var(--brand-purple);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .crumb.current {
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    .crumb-sep {
+      color: #aaa7b8;
+      font-size: 13px;
+      line-height: 1;
+    }
+
+    .journey {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 0;
+    }
+
+    .journey-step {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.66);
+      border: 1px solid rgba(42,41,53,.06);
+      color: #65667d;
+      font-size: 13px;
+      line-height: 1.2;
+      font-weight: 700;
+      font-family: 'DM Sans', Arial, sans-serif;
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast), background-color var(--transition-fast), color var(--transition-fast);
+    }
+
+    .journey-link {
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .journey-link:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-xs);
+      border-color: rgba(99,92,242,.16);
+      color: var(--brand-purple);
+      background: rgba(99,92,242,.04);
+    }
+
+    .journey-step.current {
+      background: rgba(99,92,242,.08);
+      border-color: rgba(99,92,242,.14);
+      color: var(--brand-purple);
+    }
+
+    .journey-step.done {
+      background: rgba(244,207,88,.15);
+      border-color: rgba(244,207,88,.26);
+      color: #796112;
+    }
+
+    .grid-books {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 22px;
+      margin-top: 22px;
+    }
+
+    .grid-modules {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+      margin-top: 24px;
+    }
+
+    .cover {
+      position: relative;
+      overflow: hidden;
+      min-height: 448px;
+      border-radius: 28px 28px 22px 32px;
+      border: 1px solid rgba(99,92,242,.08);
+      background: linear-gradient(180deg, var(--soft, #f8f5de) 0%, var(--surface-soft) 100%);
+      box-shadow: var(--shadow-sm);
+      transition: transform var(--transition-soft), box-shadow var(--transition-soft), border-color var(--transition-soft);
+    }
+
+    .cover:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 20px 38px rgba(42,41,53,.08);
+      border-color: rgba(99,92,242,.14);
+    }
+
+    .cover.large { min-height: 498px; }
+
+    .cover-top {
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 82px;
+      background: linear-gradient(135deg, var(--accent, var(--brand-purple)) 0%, color-mix(in srgb, var(--accent, var(--brand-purple)) 76%, white 24%) 100%);
+    }
+
+    .cover-pill {
+      position: absolute;
+      left: 50%;
+      top: 20px;
+      transform: translateX(-50%);
+      width: calc(100% - 82px);
+      max-width: 236px;
+      padding: 12px 16px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(244,207,88,.98), rgba(250,224,132,.95));
+      box-shadow: 0 10px 18px rgba(244,207,88,.16);
+      font-size: 12px;
+      line-height: 1.2;
+      text-align: center;
+      color: #352b00;
+      font-weight: 800;
+      z-index: 3;
+      word-break: break-word;
+    }
+
+    .cover.large .cover-pill {
+      top: 24px;
+      width: calc(100% - 68px);
+      max-width: 88%;
+      font-size: 16px;
+      padding: 12px 18px;
+    }
+
+    .cover-inner {
+      position: absolute;
+      inset: 116px 18px 18px 18px;
+      display: flex;
+      flex-direction: column;
+      border-radius: 24px;
+      padding: 0;
+    }
+
+    .cover.large .cover-inner {
+      inset: 96px 18px 18px 18px;
+    }
+
     .cover-image {
       margin-top: auto;
-      border: 1px solid var(--border);
-      border-radius: 22px;
-      background: var(--cream);
+      min-height: 258px;
       overflow: hidden;
-      min-height: 140px;
+      border-radius: 22px;
+      border: 1px solid rgba(99,92,242,.08);
+      background: linear-gradient(180deg, #fffaf2 0%, #f3f3fb 100%);
       display: flex;
       align-items: center;
       justify-content: center;
-      text-align: center;
-      padding: 16px;
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.5;
     }
+
+    .cover.large .cover-image { min-height: 346px; }
+
     .cover-image img {
       width: 100%;
       height: 100%;
       object-fit: cover;
       display: block;
     }
+
+    .cover-placeholder,
+    .hub-mini-placeholder {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: stretch;
+      justify-content: stretch;
+      background:
+        radial-gradient(circle at 70% 26%, rgba(244,207,88,.28), transparent 18%),
+        radial-gradient(circle at 28% 78%, rgba(99,92,242,.14), transparent 22%),
+        linear-gradient(180deg, #fffaf1 0%, #f6f2eb 52%, #eef0ff 100%);
+    }
+
+    .mock-cover-inner {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 16px 14px;
+    }
+
+    .mock-cover-title {
+      font-size: 16px;
+      line-height: 1.2;
+      font-weight: 700;
+      max-width: 90%;
+    }
+
+    .mock-cover-ill {
+      width: 100%;
+      height: 54%;
+      border-radius: 18px 18px 14px 22px;
+      border: 1px solid rgba(42,41,53,.06);
+      background:
+        radial-gradient(circle at 28% 28%, rgba(244,207,88,.55), transparent 18%),
+        radial-gradient(circle at 74% 38%, rgba(99,92,242,.18), transparent 24%),
+        linear-gradient(180deg, rgba(255,255,255,.82), rgba(255,255,255,.42));
+    }
+
     .cover-action { margin-top: 12px; }
-    .hidden { display: none !important; }
+
+    .hub-head {
+      display: grid;
+      grid-template-columns: 172px 1fr;
+      gap: 24px;
+      align-items: start;
+      margin-bottom: 6px;
+    }
+
+    .mini-cover-card {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .hub-mini-cover {
+      position: relative;
+      width: 152px;
+      min-height: 214px;
+      overflow: hidden;
+      border-radius: 24px 24px 18px 28px;
+      border: 1px solid rgba(99,92,242,.08);
+      background: linear-gradient(180deg, var(--soft, #f8f5de) 0%, #fffaf2 100%);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .hub-mini-top {
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 48px;
+      background: linear-gradient(135deg, var(--accent, var(--brand-purple)) 0%, color-mix(in srgb, var(--accent, var(--brand-purple)) 76%, white 24%) 100%);
+    }
+
+    .hub-mini-image {
+      position: absolute;
+      inset: 48px 12px 12px 12px;
+      overflow: hidden;
+      border-radius: 16px 16px 12px 18px;
+      border: 1px solid rgba(99,92,242,.08);
+      background: linear-gradient(180deg, rgba(255,255,255,.72), rgba(255,255,255,.36));
+    }
+
+    .hub-mini-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .mini-meta {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .mini-meta-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(42,41,53,.07);
+      background: rgba(255,255,255,.86);
+      color: #5c5a68;
+      font-size: 13px;
+      line-height: 1.2;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .option-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-height: 208px;
+      padding: 22px;
+      border-radius: 26px 26px 20px 30px;
+      background: var(--surface-strong);
+      border: 1px solid rgba(99,92,242,.08);
+      box-shadow: var(--shadow-sm);
+      transition: transform var(--transition-soft), box-shadow var(--transition-soft), border-color var(--transition-soft);
+      overflow: hidden;
+    }
+
+    .option-card::after {
+      content: '';
+      position: absolute;
+      inset: auto -16px -16px auto;
+      width: 76px;
+      height: 76px;
+      border-radius: 42% 58% 58% 42% / 48% 40% 60% 52%;
+      background: rgba(99,92,242,.05);
+      pointer-events: none;
+    }
+
+    .option-card:nth-child(1)::after { background: rgba(244,207,88,.12); }
+    .option-card:nth-child(2)::after { background: rgba(99,92,242,.06); }
+    .option-card:nth-child(3)::after { background: rgba(244,207,88,.08); }
+
+    .option-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 18px 34px rgba(42,41,53,.08);
+      border-color: rgba(99,92,242,.14);
+    }
+
+    .option-icon {
+      width: 56px;
+      height: 56px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 18px;
+      font-size: 24px;
+      box-shadow: var(--shadow-xs);
+    }
+
+    .option-title {
+      font-size: 30px;
+      line-height: 1.06;
+      font-weight: 700;
+    }
+
+    .option-desc {
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--muted);
+    }
+
+    .option-card .btn {
+      width: 100%;
+      margin-top: auto;
+    }
+
     .story-layout {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0;
+      grid-template-columns: minmax(250px, 300px) minmax(0, 1fr);
+      border-radius: 34px 34px 26px 40px;
+      border: 1px solid rgba(255,255,255,.76);
+      background: rgba(255,255,255,.88);
+      box-shadow: var(--shadow-md);
       overflow: hidden;
-      border-radius: 32px;
-      box-shadow: var(--shadow);
-      border: 1px solid rgba(255,255,255,.7);
-      background: rgba(255,255,255,.85);
+      backdrop-filter: blur(10px);
     }
+
     .story-side {
-      padding: 28px;
+      padding: 34px 36px;
     }
+
     .story-side.left {
-      background: linear-gradient(135deg, #fff4bf, #fffaf0, #eef0ff);
-      border-right: 1px solid rgba(255,255,255,.7);
+      background: linear-gradient(180deg, rgba(244,207,88,.12), rgba(255,255,255,.3));
+      border-right: 1px solid rgba(99,92,242,.06);
     }
+
+    .module-head-vertical {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 10px;
+    }
+
+    .module-head-vertical .hub-mini-cover {
+      width: 154px;
+      min-height: 214px;
+    }
+
+    .module-head-vertical h2 {
+      font-size: clamp(22px, 2vw, 28px);
+      line-height: 1.1;
+      font-weight: 700;
+    }
+
+    .module-head-vertical .desc {
+      margin-top: 0;
+      max-width: none;
+      font-size: 15px;
+      line-height: 1.66;
+      color: var(--muted);
+    }
+
     .story-bubble {
-      border-radius: 24px;
-      border: 1px solid var(--border);
+      padding: 20px 22px;
+      border-radius: 22px 22px 18px 24px;
+      border: 1px solid rgba(99,92,242,.08);
+      background: rgba(255,255,255,.9);
+      line-height: 1.78;
+      margin-top: 16px;
+      box-shadow: var(--shadow-xs);
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+    }
+
+    .story-bubble:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
+      border-color: rgba(99,92,242,.14);
+    }
+
+    .bubble-yellow {
+      background: linear-gradient(180deg, #fff8db 0%, #fffdf7 100%);
+      border-color: rgba(244,207,88,.34);
+    }
+
+    .bubble-blue {
+      background: linear-gradient(180deg, #f3f4ff 0%, #fbfbff 100%);
+      border-color: rgba(99,92,242,.14);
+    }
+
+    .bubble-white {
+      background: rgba(255,255,255,.98);
+    }
+
+    .focus-card {
+      background: linear-gradient(180deg, rgba(244,207,88,.16) 0%, rgba(255,255,255,.96) 100%);
+      border-color: rgba(244,207,88,.28);
+    }
+
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .section-label .badge { margin: 0; }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 22px;
+    }
+
+    .choice-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 22px;
+    }
+
+    .choice-card {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 6px;
+      min-height: 92px;
       padding: 16px 18px;
-      line-height: 1.7;
-      margin-top: 14px;
-      box-shadow: 0 4px 14px rgba(0,0,0,.04);
+      border-radius: 22px 22px 16px 24px;
+      border: 1px solid rgba(99,92,242,.1);
+      background: rgba(255,255,255,.96);
+      text-align: left;
+      transition: transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);
     }
-    .bubble-yellow { background: #fff4bf; border-color: #ffd129; }
-    .bubble-blue { background: #eef0ff; border-color: rgba(92,96,249,.25); }
-    .bubble-white { background: white; }
-    .actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px; }
-    ul { margin: 10px 0 0; padding-left: 22px; line-height: 1.8; }
-    @media (max-width: 1100px) {
-      .grid-books { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .grid-modules { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+    .choice-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-sm);
+      border-color: rgba(99,92,242,.18);
+      background: white;
+    }
+
+    .choice-card.choice-primary {
+      background: linear-gradient(180deg, rgba(99,92,242,.09), rgba(255,255,255,.96));
+    }
+
+    .choice-card.choice-accent {
+      background: linear-gradient(180deg, rgba(244,207,88,.18), rgba(255,255,255,.96));
+      border-color: rgba(244,207,88,.24);
+    }
+
+    .choice-card .choice-kicker {
+      font-size: 12px;
+      line-height: 1.2;
+      color: var(--muted-2);
+      font-weight: 700;
+      font-family: 'DM Sans', Arial, sans-serif;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    .choice-card .choice-title {
+      font-family: 'DM Sans', Arial, sans-serif;
+      font-size: 20px;
+      line-height: 1.15;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .question-list {
+      list-style: none;
+      padding: 0;
+      margin: 14px 0 0;
+      display: grid;
+      gap: 10px;
+    }
+
+    .question-list li {
+      position: relative;
+      padding: 12px 14px 12px 40px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.9);
+      border: 1px solid rgba(99,92,242,.08);
+      transition: transform var(--transition-fast), border-color var(--transition-fast), background-color var(--transition-fast);
+    }
+
+    .question-list li::before {
+      content: '•';
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--brand-purple);
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .question-list li:hover {
+      transform: translateY(-1px);
+      background: rgba(99,92,242,.03);
+      border-color: rgba(99,92,242,.14);
+    }
+
+    .episode-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .episode-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 20px;
+      border-radius: 24px 24px 18px 28px;
+      background: var(--surface-strong);
+      border: 1px solid rgba(99,92,242,.08);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .episode-card::after {
+      content: '';
+      position: absolute;
+      right: -16px;
+      bottom: -18px;
+      width: 72px;
+      height: 72px;
+      border-radius: 44% 56% 58% 42% / 42% 38% 62% 58%;
+      background: rgba(99,92,242,.05);
+      pointer-events: none;
+    }
+
+    .episode-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      align-self: flex-start;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(99,92,242,.08);
+      border: 1px solid rgba(99,92,242,.12);
+      color: #4f5274;
+      font-size: 12px;
+      line-height: 1.2;
+      font-weight: 700;
+    }
+
+    .episode-title {
+      font-size: 24px;
+      line-height: 1.12;
+      font-weight: 700;
+    }
+
+    .episode-desc {
+      font-size: 15px;
+      line-height: 1.68;
+      color: var(--muted);
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 1120px) {
+      .onboarding-copy p { white-space: normal; }
+      .onboarding-options,
+      .grid-modules,
+      .grid-books,
+      .episode-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .story-layout { grid-template-columns: 1fr; }
-      .story-side.left { border-right: 0; border-bottom: 1px solid rgba(255,255,255,.7); }
+      .story-side.left { border-right: 0; border-bottom: 1px solid rgba(99,92,242,.06); }
+      .recommendation-card,
+      .hub-head { grid-template-columns: 1fr; }
     }
-    @media (max-width: 700px) {
-      .wrap { padding: 16px; }
-      .grid-books, .grid-modules { grid-template-columns: 1fr; }
-      .cover { min-height: 410px; }
-      .panel { padding: 20px; }
-      .desc { font-size: 16px; }
+
+    @media (max-width: 760px) {
+      .wrap { padding: 18px 16px 32px; }
+      .topbar {
+        padding: 16px 16px 14px;
+        grid-template-columns: 1fr;
+      }
+      .subnav-logo,
+      .topbar-subnav,
+      .topbar-actions {
+        grid-column: auto;
+        grid-row: auto;
+      }
+      .topbar-subnav {
+        margin-top: 4px;
+      }
+      .subnav-logo {
+        justify-self: start;
+        width: 84px;
+        height: 84px;
+      }
+      .topbar-actions {
+        width: auto;
+        justify-self: end;
+        align-items: stretch;
+      }
+      .topbar-actions .btn { width: auto; }
+      .topbar-actions .icon-btn { width: auto; min-width: unset; }
+      .onboarding-options,
+      .grid-books,
+      .grid-modules,
+      .episode-grid,
+      .choice-actions { grid-template-columns: 1fr; }
+      .panel { padding: 22px; }
+      .story-side { padding: 24px 22px; }
+      .hub-mini-cover,
+      .module-head-vertical .hub-mini-cover { width: 142px; min-height: 194px; }
+      .desc { font-size: 17px; }
     }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="topbar">
-      <div>
-        <div class="eyebrow">Carica Stories Prototype</div>
-        <h1>Carica Bibliothek</h1>
+    <section id="view-loading" class="loading-wrap">
+      <div class="loading-card">
+        <div class="loading-hero-brand">
+          <div class="loading-hero-logo-frame">
+            <img src="/branding/carica-loading-main-logo.png" alt="Carica Stories Logo" class="loading-hero-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+            <span class="loading-hero-fallback">Carica Stories</span>
+          </div>
+          <div class="logo-sub">Storytelling Ecosystem</div>
+        </div>
+        <div class="loading-track"><div class="loading-fill" id="loading-fill"></div></div>
+        <div class="developed-by">Developed by</div>
+        <div class="developed-logo-frame">
+          <img src="/branding/carica-developed-logo.png" alt="Carica Stories Logo" class="developed-logo-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+          <span class="developed-logo-fallback">Carica Stories</span>
+        </div>
+        <div class="logo-made" style="margin-top:10px;">Made in germany</div>
       </div>
-      <div style="display:flex; gap:12px; flex-wrap:wrap;">
-        <button class="btn btn-outline hidden" id="btn-back-library">Zur Bibliothek</button>
-        <button class="btn btn-outline" id="btn-restart">Neu starten</button>
+    </section>
+
+    <section id="view-onboarding" class="hidden panel">
+      <div class="onboarding-shell">
+        <div class="onboarding-card">
+          <div class="onboarding-copy">
+            
+            <h2>Wie möchten Sie beginnen?</h2>
+            <p>Diese Seite hilft Ihnen, eine passende Erzählwelt zu finden, direkt in den Carica Story Hub zu wechseln oder eine zufällige Geschichte auszuwählen.</p>
+          </div>
+
+          <div class="onboarding-options">
+            <div class="onboarding-option">
+              <div class="onboarding-option-icon">💛</div>
+              <div class="onboarding-option-title">Begleitete Auswahl</div>
+              <div class="onboarding-option-desc">Gemeinsam eine passende Erzählwelt finden – basierend auf Alter, Lernzielen, Herausforderungen und Schlüsselwörtern.</div>
+              <button class="btn btn-primary" id="btn-show-guided-form">Begleitete Auswahl starten</button>
+            </div>
+
+            <div class="onboarding-option">
+              <div class="onboarding-option-icon">📚</div>
+              <div class="onboarding-option-title">Carica Story Hub</div>
+              <div class="onboarding-option-desc">Ohne Vorbereitung direkt in die Bibliothek wechseln und selbst eine Geschichte auswählen.</div>
+              <button class="btn btn-primary" id="btn-go-library-direct">Zum Story Hub</button>
+            </div>
+
+            <div class="onboarding-option">
+              <div class="onboarding-option-icon">🎲</div>
+              <div class="onboarding-option-title">Zufällige Empfehlung</div>
+              <div class="onboarding-option-desc">Eine spontane Empfehlung erhalten und direkt mit dem Lesen beginnen.</div>
+              <button class="btn btn-primary" id="btn-random-story">Zufällige Geschichte öffnen</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="random-recommendation" class="recommendation-shell hidden"></div>
+
+        <div id="guided-form-shell" class="guided-form-shell hidden">
+          <div class="onboarding-box">
+            <div class="field-group">
+              <label class="field-label" for="child-name">Kind</label>
+              <input id="child-name" class="text-input" type="text" placeholder="Name des Kindes (optional)" />
+            </div>
+
+            <div class="field-group">
+              <label class="field-label" for="child-age">Alter</label>
+              <select id="child-age" class="select-input">
+                <option value="">Bitte wählen</option>
+                <option>3–5</option>
+                <option>6–8</option>
+                <option>9–12</option>
+              </select>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Was soll Ihr Kind stärken oder lernen?</label>
+              <div class="chip-row" id="focus-chips">
+                <button type="button" class="choice-chip" data-value="ehrlichkeit">Ehrlichkeit</button>
+                <button type="button" class="choice-chip" data-value="freundschaft">Freundschaft</button>
+                <button type="button" class="choice-chip" data-value="mut">Mut</button>
+                <button type="button" class="choice-chip" data-value="demokratie">Demokratie</button>
+                <button type="button" class="choice-chip" data-value="familie">Familie</button>
+                <button type="button" class="choice-chip" data-value="verantwortung">Verantwortung</button>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Welche Themen oder Schwierigkeiten sind aktuell wichtig?</label>
+              <div class="chip-row" id="concern-chips">
+                <button type="button" class="choice-chip" data-value="streit">Streit</button>
+                <button type="button" class="choice-chip" data-value="lügen">Lügen / Wahrheit</button>
+                <button type="button" class="choice-chip" data-value="trennung">Nähe / Vermissen</button>
+                <button type="button" class="choice-chip" data-value="entscheidung">Entscheidungen</button>
+                <button type="button" class="choice-chip" data-value="angst">Angst</button>
+                <button type="button" class="choice-chip" data-value="abenteuer">Abenteuerlust</button>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label" for="keywords">Schlüsselwörter</label>
+              <textarea id="keywords" class="textarea-input" placeholder="Zum Beispiel: Ehrlichkeit, الأمانة, Freundschaft, Wahlen, Papa, Mut"></textarea>
+              <div class="hint">Die Schlüsselwörter helfen dem Prototyp, eine passende Erzählwelt zu wählen.</div>
+            </div>
+
+            <button class="btn btn-primary" id="btn-find-story" style="width:100%;">Passende Erzählwelt finden</button>
+          </div>
+        </div>
       </div>
+    </section>
+
+    <div id="app-shell" class="hidden">
+      <div class="topbar-shell">
+        <div class="topbar-stack">
+          <div class="topbar">
+            <div class="subnav-logo" id="topbar-logo">
+              <img src="/branding/carica-topbar-logo.png" alt="Carica Logo" onerror="this.style.display='none'; this.parentElement.style.background='linear-gradient(135deg, rgba(244,207,88,.18), rgba(99,92,242,.08))';">
+            </div>
+            <div class="topbar-subnav" id="topbar-subnav">
+              <div class="subnav-nav">
+                <div class="breadcrumb" id="breadcrumb"></div>
+                <div class="journey" id="journey"></div>
+              </div>
+            </div>
+            <div class="topbar-actions">
+              <button class="btn icon-btn hidden" id="btn-back-library" aria-label="Zurück" title="Zurück">Zurück</button>
+              <button class="btn icon-btn" id="btn-restart" aria-label="Neustart" title="Neustart">Neustart</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <section id="view-library" class="panel">
+        <div class="badge">Wähle einen Einstieg ins Storytelling-Ecosystem</div>
+        <h2 style="margin-top:12px;">Bibliothek</h2>
+        
+        <div class="grid-books" id="books-grid"></div>
+      </section>
+
+      <section id="view-hub" class="hidden">
+        <div class="panel">
+          <div class="hub-head">
+            <div id="hub-mini-cover"></div>
+            <div>
+              <div class="badge badge-accent">Ausgewählte Erzählwelt</div>
+              <h2 id="hub-title" style="margin-top:12px;"></h2>
+              <p class="desc" id="hub-desc"></p>
+            </div>
+          </div>
+          <div class="grid-modules" id="modules-grid"></div>
+        </div>
+      </section>
+
+      <section id="view-story" class="hidden story-layout">
+        <div class="story-side left" id="story-cover-side"></div>
+        <div class="story-side">
+          <div class="section-label">
+            <span class="badge">Kernszene</span>
+          </div>
+          <h2 id="story-scene-title"></h2>
+          <div class="story-bubble bubble-yellow" id="story-bubble-1"></div>
+          <div class="story-bubble bubble-blue" id="story-bubble-2"></div>
+          <div class="story-bubble bubble-white" id="story-bubble-3"></div>
+          <div class="choice-actions">
+            <button class="choice-card choice-primary" id="btn-honest">
+              <span class="choice-kicker">Elternmaterial</span>
+              <span class="choice-title" id="btn-honest-label"></span>
+            </button>
+            <button class="choice-card choice-accent" id="btn-careful">
+              <span class="choice-kicker">Elternmaterial</span>
+              <span class="choice-title" id="btn-careful-label"></span>
+            </button>
+          </div>
+          <div class="actions">
+            <button class="btn btn-secondary" id="btn-story-back">Zum Story Hub</button>
+            <button class="btn btn-ghost" id="btn-story-audio">Weiteres Drama</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-audio" class="hidden story-layout">
+        <div class="story-side left" id="audio-cover-side"></div>
+        <div class="story-side">
+          <h2>Warum ist das wichtig?</h2>
+          <div class="story-bubble bubble-white">Die Geschichte endet nicht an der Buchseite. Audio kann die Welt vertiefen, Gefühle verlängern und neue Perspektiven eröffnen.</div>
+          <div class="story-bubble bubble-blue">So wird sichtbar, dass Carica nicht nur einzelne Bücher anbietet, sondern ein wachsendes Storytelling-Ecosystem.</div>
+          <div id="audio-episodes" class="episode-grid"></div>
+          <div class="actions">
+            <button class="btn btn-secondary" id="btn-audio-back">Zum Story Hub</button>
+            <button class="btn btn-accent" id="btn-audio-parents">Pädagogisches Material</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-parents" class="hidden story-layout">
+        <div class="story-side left" id="parents-cover-side"></div>
+        <div class="story-side">
+          <div class="badge badge-accent">Pädagogische Ebene</div>
+          <h2 style="margin-top:14px;">Material für Eltern und Begleitpersonen</h2>
+          <div class="story-bubble focus-card">
+            <strong>Aktueller Fokus</strong>
+            <div id="parents-focus" style="margin-top:8px;"></div>
+          </div>
+          <div class="story-bubble bubble-white">
+            <strong>Fragen für zuhause</strong>
+            <ul id="parents-questions" class="question-list"></ul>
+          </div>
+          <div class="story-bubble bubble-yellow">
+            <strong>Analoge Anschlussidee</strong>
+            <div id="parents-activity" style="margin-top:8px;"></div>
+          </div>
+          <div class="actions">
+            <button class="btn btn-primary" id="btn-start-conversation">Gespräch starten</button>
+            <button class="btn btn-secondary" id="btn-parents-back">Zur Geschichte</button>
+            <button class="btn btn-ghost" id="btn-parents-audio">Audio öffnen</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-gamification" class="hidden story-layout">
+        <div class="story-side left" id="gamification-cover-side"></div>
+        <div class="story-side">
+          <div class="badge">Gamification-Ebene</div>
+          <h2 style="margin-top:14px;">Spielerische Vertiefung</h2>
+          <div class="story-bubble bubble-white" id="gamification-intro"></div>
+          <div id="gamification-grid" class="episode-grid"></div>
+          <div class="actions">
+            <button class="btn btn-secondary" id="btn-game-back">Zum Story Hub</button>
+            <button class="btn btn-ghost" id="btn-game-story">Zur Geschichte</button>
+            <button class="btn btn-accent" id="btn-game-parents">Elternmaterial</button>
+          </div>
+        </div>
+      </section>
     </div>
-
-    <section id="view-library" class="panel">
-      <div class="badge">Wähle einen Einstieg ins Storytelling-Ecosystem</div>
-      <h2 style="margin-top:12px;">Bibliothek</h2>
-      <p class="desc">Zuerst erscheint eine kleine Bibliothek aus Buchcovern. Nach der Auswahl öffnet sich ein zweiter Bereich, der ebenfalls als Cover-Sammlung aufgebaut ist.</p>
-      <div class="grid-books" id="books-grid"></div>
-    </section>
-
-    <section id="view-hub" class="hidden">
-      <div class="panel">
-        <div id="selected-book-cover"></div>
-      </div>
-      <div class="panel" style="margin-top:24px;">
-        <div class="badge">Ausgewähltes Buch</div>
-        <h2 id="hub-title" style="margin-top:12px;"></h2>
-        <p class="desc">Auch nach der Buchauswahl erscheinen die nächsten Zugänge als Cover: die Geschichte selbst, weiteres Drama und pädagogisches Material.</p>
-        <div class="grid-modules" id="modules-grid"></div>
-      </div>
-    </section>
-
-    <section id="view-story" class="hidden story-layout">
-      <div class="story-side left" id="story-cover-side"></div>
-      <div class="story-side">
-        <div class="badge" style="background:rgba(92,96,249,.1); border-color:rgba(92,96,249,.2);">Kernszene</div>
-        <h2 style="margin-top:16px;">Lian schenkt Adam ein Armband.</h2>
-        <div class="story-bubble bubble-yellow">Lian hat Adam ein Armband geschenkt, das sie selbst gemacht hat.</div>
-        <div class="story-bubble bubble-blue">Adam freut sich über die Aufmerksamkeit – aber das Armband gefällt ihm nicht wirklich.</div>
-        <div class="story-bubble bubble-white">Was ist in diesem Moment wichtiger: Offenheit, Rücksicht oder zuerst einmal Stille?</div>
-        <div class="actions">
-          <button class="btn btn-blue" id="btn-honest">Ehrlich antworten</button>
-          <button class="btn btn-yellow" id="btn-careful">Vorsichtig sprechen</button>
-        </div>
-        <div class="actions">
-          <button class="btn btn-outline" id="btn-story-back">Zurück zum Hub</button>
-          <button class="btn btn-outline" id="btn-story-audio">Audio öffnen</button>
-        </div>
-      </div>
-    </section>
-
-    <section id="view-audio" class="hidden story-layout">
-      <div class="story-side left" id="audio-cover-side"></div>
-      <div class="story-side">
-        <h2>Warum ist das wichtig?</h2>
-        <div class="story-bubble bubble-white">Die Geschichte endet nicht an der Buchseite. Audio kann die Welt vertiefen, Gefühle verlängern und neue Perspektiven eröffnen.</div>
-        <div class="story-bubble bubble-blue">So wird sichtbar, dass Carica nicht nur einzelne Bücher anbietet, sondern ein wachsendes Storytelling-Ecosystem.</div>
-        <div class="actions">
-          <button class="btn btn-outline" id="btn-audio-back">Zurück zum Hub</button>
-          <button class="btn btn-yellow" id="btn-audio-parents">Pädagogisches Material</button>
-        </div>
-      </div>
-    </section>
-
-    <section id="view-parents" class="hidden story-layout">
-      <div class="story-side left" id="parents-cover-side"></div>
-      <div class="story-side">
-        <div class="badge">Pädagogische Ebene</div>
-        <h2 style="margin-top:16px;">Material für Eltern und Begleitpersonen</h2>
-        <div class="story-bubble bubble-white">
-          <strong>Aktueller Fokus</strong>
-          <div id="parents-focus" style="margin-top:8px;"></div>
-        </div>
-        <div class="story-bubble bubble-white">
-          <strong>Fragen für zuhause</strong>
-          <ul>
-            <li>Wann ist es schwer, ehrlich zu sein?</li>
-            <li>Wie merkt man, ob ein Satz freundlich oder verletzend klingt?</li>
-            <li>Hilft Schweigen manchmal – und wann eher nicht?</li>
-          </ul>
-        </div>
-        <div class="story-bubble bubble-yellow">
-          <strong>Analoge Anschlussidee</strong>
-          <div style="margin-top:8px;">Spielt die Szene gemeinsam nach: einmal als Lian, einmal als Adam. Danach verändert ihr nur den Tonfall – nicht den Inhalt. Was verändert sich?</div>
-        </div>
-        <div class="actions">
-          <button class="btn btn-outline" id="btn-parents-back">Zurück zum Hub</button>
-          <button class="btn btn-blue" id="btn-parents-audio">Zum Audio-Modul</button>
-        </div>
-      </div>
-    </section>
   </div>
 
   <script>
@@ -330,53 +1737,68 @@
         title: 'Das Geschenk von Lian',
         subtitle: 'Freundschaft, Ehrlichkeit und Rücksicht',
         available: true,
-        accent: '#5c60f9',
-        soft: '#fff4bf',
+        accent: '#635cf2',
+        soft: '#fff7df',
         badge: 'Geschenk',
-        coverImage: ''
+        age: '4–8 Jahre',
+        coverImage: '/covers/das-geschenk-von-lian.jpg',
+        shopUrl: '/shop/das-geschenk-von-lian',
+        ebookUrl: '/ebook/das-geschenk-von-lian'
       },
       {
         id: 'elections',
         title: 'Wahlen im Zoo',
-        subtitle: 'Bald verfügbar',
-        available: false,
-        accent: '#5c60f9',
-        soft: '#eef0ff',
+        subtitle: 'Mitbestimmung, Fairness und Gemeinschaft',
+        available: true,
+        accent: '#635cf2',
+        soft: '#f2f0ff',
         badge: 'Zoo',
-        coverImage: ''
+        age: '4–8 Jahre',
+        coverImage: '/covers/wahlen-im-zoo.jpg',
+        shopUrl: '/shop/wahlen-im-zoo',
+        ebookUrl: '/ebook/wahlen-im-zoo'
       },
       {
         id: 'papa',
         title: 'Morgen spiele ich wieder mit Papa',
-        subtitle: 'Bald verfügbar',
-        available: false,
-        accent: '#ffd129',
-        soft: '#fff8e2',
+        subtitle: 'Nähe, Vorfreude und Familienzeit',
+        available: true,
+        accent: '#635cf2',
+        soft: '#fff5e8',
         badge: 'Familie',
-        coverImage: ''
+        age: '4–8 Jahre',
+        coverImage: '/covers/morgen-spiele-ich-wieder-mit-papa.jpg',
+        shopUrl: '/shop/morgen-spiele-ich-wieder-mit-papa',
+        ebookUrl: '/ebook/morgen-spiele-ich-wieder-mit-papa'
       },
       {
         id: 'dino',
         title: 'Der Dino, der Pirat werden wollte',
-        subtitle: 'Bald verfügbar',
-        available: false,
-        accent: '#5c60f9',
-        soft: '#fff4bf',
+        subtitle: 'Mut, Fantasie und Abenteuerlust',
+        available: true,
+        accent: '#635cf2',
+        soft: '#fff7df',
         badge: 'Abenteuer',
-        coverImage: ''
+        age: '4–8 Jahre',
+        coverImage: '/covers/der-dino-der-pirat-werden-wollte.jpg',
+        shopUrl: '/shop/der-dino-der-pirat-werden-wollte',
+        ebookUrl: '/ebook/der-dino-der-pirat-werden-wollte'
       }
     ];
 
     const state = {
-      view: 'library',
+      view: 'loading',
       selectedBook: 'gift',
       answer: null,
+      history: []
     };
 
-    const views = ['library', 'hub', 'story', 'audio', 'parents'];
+    const views = ['loading', 'onboarding', 'library', 'hub', 'story', 'audio', 'parents', 'gamification'];
+    let loadingInterval = null;
+    let loadingTimeout = null;
 
     function currentBook() {
-      return books.find(b => b.id === state.selectedBook) || books[0];
+      return books.find(book => book.id === state.selectedBook) || books[0];
     }
 
     function moduleData() {
@@ -384,161 +1806,609 @@
       return [
         {
           id: 'story',
-          title: `${book.title} – Zur Geschichte`,
-          subtitle: 'Der Einstieg in die Kernszene des ausgewählten Buches.',
-          accent: book.accent,
-          soft: book.soft,
-          badge: 'Geschichte',
-          coverImage: book.coverImage,
+          title: 'Zur Geschichte',
+          subtitle: `Direkt in die Kernszene von „${book.title}“ einsteigen.`,
+          icon: '📖',
+          iconBg: 'linear-gradient(135deg, rgba(244,207,88,.22), rgba(244,207,88,.08))'
         },
         {
           id: 'audio',
-          title: `${book.title} – Weiteres Drama`,
+          title: 'Weiteres Drama',
           subtitle: 'Eine zusätzliche Hörszene aus derselben Welt und Stimmung.',
-          accent: '#5c60f9',
-          soft: '#eef0ff',
-          badge: 'Audio',
-          coverImage: book.coverImage,
+          icon: '🎧',
+          iconBg: 'linear-gradient(135deg, rgba(99,92,242,.14), rgba(99,92,242,.06))'
         },
         {
           id: 'parents',
-          title: `${book.title} – Pädagogisches Material`,
+          title: 'Pädagogisches Material',
           subtitle: 'Gesprächsimpulse, Wertebezug und analoge Anschlussideen.',
-          accent: '#ffd129',
-          soft: '#fff8e2',
-          badge: 'Eltern',
-          coverImage: book.coverImage,
+          icon: '🌿',
+          iconBg: 'linear-gradient(135deg, rgba(99,92,242,.08), rgba(244,207,88,.12))'
+        },
+        {
+          id: 'gamification',
+          title: 'Gamification',
+          subtitle: 'Spielerische Missionen und kleine Challenges zur Erzählwelt.',
+          icon: '✨',
+          iconBg: 'linear-gradient(135deg, rgba(244,207,88,.18), rgba(99,92,242,.1))'
         }
       ];
     }
 
-    function coverImageHtml(image, title, large = false) {
-      if (image) {
-        return `<img src="${image}" alt="${title}" style="width:100%;height:${large ? 220 : 140}px;object-fit:cover;display:block;">`;
-      }
+    function stopLoadingSequence() {
+      if (loadingInterval) clearInterval(loadingInterval);
+      if (loadingTimeout) clearTimeout(loadingTimeout);
+      loadingInterval = null;
+      loadingTimeout = null;
+    }
+
+    function startLoadingSequence() {
+      stopLoadingSequence();
+      const fill = document.getElementById('loading-fill');
+      if (!fill) return;
+      let progress = 0;
+      fill.style.width = '0%';
+      loadingInterval = setInterval(() => {
+        progress += 3;
+        fill.style.width = `${Math.min(progress, 100)}%`;
+      }, 55);
+      loadingTimeout = setTimeout(() => {
+        stopLoadingSequence();
+        setView('onboarding', false);
+      }, 2000);
+    }
+
+    function chooseBookByKeywords(text, focusValues, concernValues) {
+      const raw = `${text} ${focusValues.join(' ')} ${concernValues.join(' ')}`.toLowerCase();
+      if (/ehrlichkeit|honesty|truth|صدق|أمانة|الامانة|ehrlich|lügen|wahrheit/.test(raw)) return 'gift';
+      if (/wahl|wahlen|election|demokratie|zoo|انتخاب/.test(raw)) return 'elections';
+      if (/papa|vater|familie|vermissen|nähe|trennung|أب|بابا/.test(raw)) return 'papa';
+      if (/dino|pirat|abenteuer|mut|angst|شجاعة|مغامرة/.test(raw)) return 'dino';
+      return 'gift';
+    }
+
+    function getActiveChipValues(containerId) {
+      return Array.from(document.querySelectorAll(`#${containerId} .choice-chip.active`)).map(chip => chip.getAttribute('data-value'));
+    }
+
+    function safeTitle(title) {
+      return String(title || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function mockCoverMarkup(title) {
       return `
-        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;text-align:center;height:${large ? 220 : 140}px;">
-          <div style="display:inline-flex;align-items:center;gap:8px;background:white;border:1px solid var(--border);border-radius:999px;padding:6px 10px;font-size:12px;color:#666;">Cover-Platzhalter</div>
-          <div style="margin-top:12px;font-size:14px;line-height:1.5;color:#666;">Hier kann später das eigentliche Coverbild eingefügt werden.</div>
+        <div class="cover-placeholder">
+          <div class="mock-cover-inner">
+            <div class="mock-cover-title">${safeTitle(title)}</div>
+            <div class="mock-cover-ill"></div>
+          </div>
         </div>
       `;
     }
 
-    function coverHtml(item, options = {}) {
-      const { large = false, buttonLabel = '', buttonClass = 'btn btn-blue', action = '', dataId = '' } = options;
+    function coverImageHtml(image, title) {
+      const fallback = mockCoverMarkup(title).replace('cover-placeholder', 'cover-placeholder" style="display:none');
+      if (image) {
+        return `<img src="${image}" alt="${safeTitle(title)}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">${fallback}`;
+      }
+      return mockCoverMarkup(title);
+    }
+
+    function miniCoverHtml(book) {
+      const fallback = mockCoverMarkup(book.title).replace('cover-placeholder', 'hub-mini-placeholder');
+      const fallbackHidden = fallback.replace('hub-mini-placeholder', 'hub-mini-placeholder" style="display:none');
+
       return `
-        <div class="cover" style="--accent:${item.accent};--soft:${item.soft};min-height:${large ? 520 : 420}px;">
-          <div class="cover-top"></div>
-          <div class="cover-pill">${item.title}</div>
-          <div class="cover-inner">
-            <div>
-              <div class="cover-label">Storyworld</div>
-              <div class="cover-title" style="font-size:${large ? '32px' : '24px'};">${item.title}</div>
-              <div class="cover-subtitle">${item.subtitle}</div>
+        <div class="mini-cover-card">
+          <div class="hub-mini-cover" style="--accent:${book.accent};--soft:${book.soft};">
+            <div class="hub-mini-top"></div>
+            <div class="hub-mini-image">
+              ${book.coverImage
+                ? `<img src="${book.coverImage}" alt="${safeTitle(book.title)}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">${fallbackHidden}`
+                : fallback}
             </div>
-            <div style="margin-top:auto;display:flex;flex-direction:column;gap:12px;">
-              <div class="cover-image">${coverImageHtml(item.coverImage, item.title, large)}</div>
-              ${buttonLabel ? `<button class="${buttonClass}" ${action ? `data-action="${action}"` : ''} ${dataId ? `data-id="${dataId}"` : ''}>${buttonLabel}</button>` : ''}
+          </div>
+          <div class="mini-meta">
+            <span class="mini-meta-item">${book.age || '4–8 Jahre'}</span>
+            <span class="mini-meta-item">${book.badge}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    function coverHtml(book) {
+      return `
+        <div class="cover" style="--accent:${book.accent};--soft:${book.soft};">
+          <div class="cover-top"></div>
+          <div class="cover-pill">${book.title}</div>
+          <div class="cover-inner">
+            <div class="cover-image">${coverImageHtml(book.coverImage, book.title)}</div>
+            <div class="cover-action">
+              <button class="btn btn-primary" data-action="open-book" data-id="${book.id}" style="width:100%;">Öffnen</button>
             </div>
           </div>
         </div>
       `;
     }
 
-    function setView(view) {
+    function setView(view, recordHistory = true) {
+      if (recordHistory && state.view !== view && state.view !== 'loading') {
+        state.history.push(state.view);
+      }
       state.view = view;
       render();
     }
 
+    function goBackOnce() {
+      const previousView = state.history.pop();
+      if (previousView) {
+        setView(previousView, false);
+      } else {
+        setView('library', false);
+      }
+    }
+
+    function recommendationReason(book) {
+      if (book.id === 'gift') return 'Passt gut zu Ehrlichkeit und Freundschaft';
+      if (book.id === 'elections') return 'Ein guter Einstieg in Wahlen, Mitbestimmung und Gemeinschaft';
+      if (book.id === 'papa') return 'Ein warmer Einstieg für gemeinsames Lesen';
+      if (book.id === 'dino') return 'Passt gut zu Mut, Fantasie und Abenteuerlust';
+      return 'Eine passende Empfehlung für gemeinsames Lesen';
+    }
+
+    function renderRandomRecommendation() {
+      const book = currentBook();
+      const shell = document.getElementById('random-recommendation');
+      if (!shell) return;
+
+      shell.innerHTML = `
+        <div class="recommendation-card">
+          ${miniCoverHtml(book)}
+          <div class="recommendation-copy">
+            <div class="recommendation-kicker">Heute empfohlen</div>
+            <div class="recommendation-title">${book.title}</div>
+            <div class="recommendation-reason">✨ ${recommendationReason(book)}</div>
+            <div class="recommendation-desc">Passend für einen schnellen, warmen Einstieg ins gemeinsame Lesen.</div>
+            <div class="recommendation-actions">
+              <button class="btn btn-primary" id="btn-random-read-now">Jetzt lesen</button>
+              <button class="btn btn-ghost" id="btn-random-reroll">Andere Empfehlung</button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      shell.classList.remove('hidden');
+      shell.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      const readNow = document.getElementById('btn-random-read-now');
+      if (readNow) readNow.onclick = () => setView('story');
+
+      const reroll = document.getElementById('btn-random-reroll');
+      if (reroll) reroll.onclick = openRandomStory;
+    }
+
+    function openGuidedForm() {
+      const shell = document.getElementById('guided-form-shell');
+      if (!shell) return;
+      shell.classList.remove('hidden');
+      shell.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function openRandomStory() {
+      const currentId = state.selectedBook;
+      const pool = books.length > 1 ? books.filter(book => book.id !== currentId) : books;
+      const randomBook = pool[Math.floor(Math.random() * pool.length)];
+      state.selectedBook = randomBook.id;
+      state.answer = null;
+      renderRandomRecommendation();
+    }
+
+    function bindOnboarding() {
+      document.querySelectorAll('.choice-chip').forEach(chip => {
+        chip.onclick = () => chip.classList.toggle('active');
+      });
+
+      const guidedButton = document.getElementById('btn-show-guided-form');
+      if (guidedButton) guidedButton.onclick = openGuidedForm;
+
+      const directButton = document.getElementById('btn-go-library-direct');
+      if (directButton) directButton.onclick = () => setView('library');
+
+      const randomButton = document.getElementById('btn-random-story');
+      if (randomButton) randomButton.onclick = openRandomStory;
+
+      const findButton = document.getElementById('btn-find-story');
+      if (findButton) {
+        findButton.onclick = () => {
+          const keywords = document.getElementById('keywords').value || '';
+          const focusValues = getActiveChipValues('focus-chips');
+          const concernValues = getActiveChipValues('concern-chips');
+          state.selectedBook = chooseBookByKeywords(keywords, focusValues, concernValues);
+          state.answer = null;
+          setView('hub');
+        };
+      }
+    }
+
     function renderBooks() {
       const grid = document.getElementById('books-grid');
-      grid.innerHTML = books.map(book => `
-        <div>
-          ${coverHtml(book, {
-            buttonLabel: book.available ? 'Öffnen' : 'Später',
-            buttonClass: 'btn btn-blue',
-            action: book.available ? 'open-book' : '',
-            dataId: book.id,
-          })}
-        </div>
-      `).join('');
+      if (!grid) return;
+      grid.innerHTML = books.map(book => `<div>${coverHtml(book)}</div>`).join('');
+    }
+
+    function hubSummary() {
+      const book = currentBook();
+      if (book.id === 'gift') return 'Eine leise Geschichte über ein Geschenk, ehrliche Gefühle und die Frage, wie man Rücksicht zeigt, ohne sich selbst zu verlieren.';
+      if (book.id === 'elections') return 'Eine Bilderbuchwelt über Wahlen im Zoo, in der Kinder Fairness, Mitbestimmung und gemeinschaftliche Entscheidungen entdecken können.';
+      if (book.id === 'papa') return 'Ein warmes Bilderbuch über Vorfreude, Vermissen und die kleinen Gedanken, die Familiennähe im Alltag spürbar machen.';
+      return 'Ein fantasievolles Bilderbuch über einen Dino, der Pirat werden möchte, und über Mut, Selbstvertrauen und den Wunsch, seinen eigenen Weg zu gehen.';
     }
 
     function renderHub() {
       const book = currentBook();
-      document.getElementById('selected-book-cover').innerHTML = coverHtml(book, { large: true });
       document.getElementById('hub-title').textContent = book.title;
-      const grid = document.getElementById('modules-grid');
-      grid.innerHTML = moduleData().map(module => `
-        <div>
-          ${coverHtml(module, {
-            buttonLabel: 'Öffnen',
-            buttonClass: 'btn btn-blue',
-            action: 'open-module',
-            dataId: module.id,
-          })}
+      document.getElementById('hub-mini-cover').innerHTML = miniCoverHtml(book);
+      document.getElementById('hub-desc').textContent = hubSummary();
+      document.getElementById('modules-grid').innerHTML = moduleData().map(module => `
+        <div class="option-card">
+          <div class="option-icon" style="background:${module.iconBg};">${module.icon}</div>
+          <div class="option-title">${module.title}</div>
+          <div class="option-desc">${module.subtitle}</div>
+          <button class="btn btn-primary" data-action="open-module" data-id="${module.id}">Öffnen</button>
         </div>
       `).join('');
     }
 
+    function storyContent() {
+      const book = currentBook();
+      if (book.id === 'gift') {
+        return {
+          title: 'Lian schenkt Adam ein Armband.',
+          bubble1: 'Lian hat Adam ein Armband geschenkt, das sie selbst gemacht hat.',
+          bubble2: 'Adam freut sich über die Aufmerksamkeit – aber das Armband gefällt ihm nicht wirklich.',
+          bubble3: 'Was ist in diesem Moment wichtiger: Offenheit, Rücksicht oder zuerst einmal Stille?',
+          actionA: 'Ehrlich antworten',
+          actionB: 'Vorsichtig sprechen'
+        };
+      }
+      if (book.id === 'elections') {
+        return {
+          title: 'Im Zoo steht eine wichtige Wahl an.',
+          bubble1: 'Die Tiere überlegen, wen sie wählen und was Fairness in einer Gemeinschaft bedeutet.',
+          bubble2: 'Nicht alle hören gleich gut zu – und manche versprechen mehr, als sie wirklich halten können.',
+          bubble3: 'Wie können Kinder über Mitbestimmung, Verantwortung und gerechte Entscheidungen sprechen?',
+          actionA: 'Mitentscheiden',
+          actionB: 'Zuhören'
+        };
+      }
+      if (book.id === 'papa') {
+        return {
+          title: 'Die Vorfreude auf Papa ist groß.',
+          bubble1: 'Ein Kind denkt daran, morgen wieder mit Papa zu spielen, und hält an diesem Gedanken fest.',
+          bubble2: 'Zwischen Nähe, Warten und Vermissen entstehen starke Gefühle, über die man sprechen kann.',
+          bubble3: 'Wie kann man Vorfreude, Sehnsucht und Familienzeit gemeinsam verstehen?',
+          actionA: 'Gefühle benennen',
+          actionB: 'Erinnerung teilen'
+        };
+      }
+      return {
+        title: 'Ein Dino träumt von einem anderen Leben.',
+        bubble1: 'Der kleine Dino will Pirat werden – obwohl das zuerst ungewöhnlich klingt.',
+        bubble2: 'Zwischen Fantasie, Mut und Unsicherheit öffnet sich Raum für Abenteuer und Selbstvertrauen.',
+        bubble3: 'Wie spricht man darüber, anders sein zu dürfen und trotzdem seinen Weg zu finden?',
+        actionA: 'Mut zeigen',
+        actionB: 'Fragen stellen'
+      };
+    }
+
+    function parentsContent() {
+      const book = currentBook();
+      if (book.id === 'gift') {
+        return {
+          focus: state.answer === 'optionA'
+            ? 'Wie klingt Ehrlichkeit, ohne hart zu werden?'
+            : state.answer === 'optionB'
+              ? 'Wie können Ehrlichkeit und Freundlichkeit zusammengehen?'
+              : 'Gespräche über Rücksicht, Offenheit und Schweigen',
+          questions: [
+            'Wann ist es schwer, ehrlich zu sein?',
+            'Wie merkt man, ob ein Satz freundlich oder verletzend klingt?',
+            'Hilft Schweigen manchmal – und wann eher nicht?'
+          ],
+          activity: 'Spielt die Szene gemeinsam nach: einmal als Lian, einmal als Adam. Danach verändert ihr nur den Tonfall – nicht den Inhalt. Was verändert sich?'
+        };
+      }
+      if (book.id === 'elections') {
+        return {
+          focus: state.answer === 'optionA'
+            ? 'Wie lernen Kinder, dass Mitbestimmung Verantwortung braucht?'
+            : state.answer === 'optionB'
+              ? 'Wie wichtig ist Zuhören, bevor man entscheidet?'
+              : 'Gespräche über Fairness, Gemeinschaft und Entscheidungen',
+          questions: [
+            'Was ist eine faire Entscheidung für alle?',
+            'Warum ist Zuhören wichtig, bevor man wählt?',
+            'Wie geht man mit unterschiedlichen Meinungen um?'
+          ],
+          activity: 'Erfindet zusammen eine kleine Wahl zuhause oder in der Gruppe. Überlegt vorher, welche Regeln fair sind und wie alle mitentscheiden können.'
+        };
+      }
+      if (book.id === 'papa') {
+        return {
+          focus: state.answer === 'optionA'
+            ? 'Wie können Kinder Gefühle wie Vermissen oder Vorfreude benennen?'
+            : state.answer === 'optionB'
+              ? 'Wie helfen Erinnerungen und Rituale, Nähe zu spüren?'
+              : 'Gespräche über Nähe, Warten und Familienzeit',
+          questions: [
+            'Woran merkt man, dass man jemanden vermisst?',
+            'Was hilft, wenn man auf einen schönen Moment wartet?',
+            'Welche kleinen Rituale geben Kindern Sicherheit?'
+          ],
+          activity: 'Sammelt gemeinsam kleine Dinge, auf die man sich freuen kann, und gestaltet daraus eine Vorfreude-Karte oder ein Familienritual.'
+        };
+      }
+      return {
+        focus: state.answer === 'optionA'
+          ? 'Wie spricht man mit Kindern über Mut und Selbstvertrauen?'
+          : state.answer === 'optionB'
+            ? 'Wie können Fragen und Fantasie helfen, Neues auszuprobieren?'
+            : 'Gespräche über Mut, Anderssein und Fantasie',
+        questions: [
+          'Was würde dein Kind gern ausprobieren, traut sich aber noch nicht?',
+          'Warum dürfen Träume manchmal ungewöhnlich sein?',
+          'Wie kann man Kinder ermutigen, ihren eigenen Weg zu suchen?'
+        ],
+        activity: 'Erfindet gemeinsam eine neue Rolle oder Figur, die euer Kind gern einmal wäre, und spielt eine kleine Abenteuerszene dazu.'
+      };
+    }
+
+    function audioEpisodes() {
+      const book = currentBook();
+      if (book.id === 'gift') {
+        return [
+          { title: 'Lian bastelt heimlich weiter', description: 'Eine leise Szene darüber, warum Lian das Armband gemacht hat und was sie sich beim Schenken erhofft.' },
+          { title: 'Adams Weg nach Hause', description: 'Ein kurzer innerer Monolog: Adam denkt auf dem Heimweg darüber nach, was Ehrlichkeit eigentlich bedeutet.' },
+          { title: 'Nach dem Danke', description: 'Was passiert nach dem ersten Moment? Eine Folge über Unsicherheit, Nähe und kleine Missverständnisse.' },
+          { title: 'Ein neuer Satz für morgen', description: 'Adam sucht nach Worten, die wahr und freundlich zugleich sind – und probiert sie im Kopf aus.' }
+        ];
+      }
+      if (book.id === 'elections') {
+        return [
+          { title: 'Vor der Abstimmung', description: 'Die Tiere im Zoo sprechen darüber, was sie sich von der Wahl erhoffen und warum Regeln wichtig sind.' },
+          { title: 'Stimmen aus dem Gehege', description: 'Unterschiedliche Tiere erzählen, was Gerechtigkeit für sie bedeutet.' },
+          { title: 'Ein Versprechen zu viel', description: 'Eine kurze Hörszene darüber, warum nicht jedes Versprechen automatisch gut ist.' },
+          { title: 'Nach der Wahl', description: 'Was passiert eigentlich, wenn eine Entscheidung getroffen wurde – und wie lebt man danach weiter zusammen?' }
+        ];
+      }
+      if (book.id === 'papa') {
+        return [
+          { title: 'Heute noch nicht, morgen vielleicht', description: 'Ein ruhiger Hörmoment über Warten, Vorfreude und das Festhalten an einem schönen Gedanken.' },
+          { title: 'Der Gedanke an morgen', description: 'Ein Kind malt sich aus, wie der nächste gemeinsame Tag mit Papa aussehen könnte.' },
+          { title: 'Kleine Erinnerungen', description: 'Eine Episode darüber, wie Erinnerungen Nähe schaffen können, wenn jemand gerade nicht da ist.' },
+          { title: 'Wenn die Zeit langsam geht', description: 'Wie fühlt sich Warten an – und was kann einem Kind dabei helfen?' }
+        ];
+      }
+      return [
+        { title: 'Der Wunsch des Dinos', description: 'Der Dino spricht darüber, warum ihn das Piratenleben so sehr fasziniert.' },
+        { title: 'Was die anderen denken', description: 'Eine Hörszene über Zweifel, Blicke von außen und den Mut, bei sich zu bleiben.' },
+        { title: 'Ein kleiner Probelauf', description: 'Der Dino probiert aus, wie es sich anfühlt, etwas Neues zu wagen.' },
+        { title: 'Abenteuer im Kopf', description: 'Eine fantasievolle Episode über innere Bilder, Träume und neue Möglichkeiten.' }
+      ];
+    }
+
     function renderStoryCover() {
       const book = currentBook();
-      document.getElementById('story-cover-side').innerHTML = coverHtml({
-        title: `${book.title} – Zur Geschichte`,
-        subtitle: 'Kernszene des ausgewählten Buches',
-        accent: book.accent,
-        soft: book.soft,
-        badge: 'Geschichte',
-        coverImage: book.coverImage,
-      }, { large: true });
+      document.getElementById('story-cover-side').innerHTML = `
+        <div class="module-head-vertical">
+          ${miniCoverHtml(book)}
+          <div class="badge">Crossmediale Ebene</div>
+          <h2>Zur Geschichte</h2>
+          <p class="desc">Hier beginnt der erzählerische Einstieg in die ausgewählte Erzählwelt.</p>
+        </div>
+        <div class="actions" style="margin-top:6px;">
+          <a class="btn btn-primary" href="${book.shopUrl}">Gedrucktes Buch</a>
+          <a class="btn btn-accent" href="${book.ebookUrl}">E-Book ansehen</a>
+        </div>
+      `;
+    }
+
+    function renderStoryMain() {
+      const content = storyContent();
+      document.getElementById('story-scene-title').textContent = content.title;
+      document.getElementById('story-bubble-1').textContent = content.bubble1;
+      document.getElementById('story-bubble-2').textContent = content.bubble2;
+      document.getElementById('story-bubble-3').textContent = content.bubble3;
+      document.getElementById('btn-honest-label').textContent = content.actionA;
+      document.getElementById('btn-careful-label').textContent = content.actionB;
     }
 
     function renderAudioCover() {
       const book = currentBook();
-      document.getElementById('audio-cover-side').innerHTML = coverHtml({
-        title: `${book.title} – Weiteres Drama`,
-        subtitle: 'Zusätzliche Hörszene aus derselben Welt',
-        accent: '#5c60f9',
-        soft: '#eef0ff',
-        badge: 'Audio',
-        coverImage: book.coverImage,
-      }, { large: true });
+      document.getElementById('audio-cover-side').innerHTML = `
+        <div class="module-head-vertical">
+          ${miniCoverHtml(book)}
+          <div class="badge">Audio-Ebene</div>
+          <h2>Weiteres Drama</h2>
+          <p class="desc">Hier öffnet sich eine Reihe zusätzlicher Hörmomente aus derselben Erzählwelt.</p>
+        </div>
+      `;
+      document.getElementById('audio-episodes').innerHTML = audioEpisodes().map((episode, index) => `
+        <div class="episode-card">
+          <div class="episode-kicker">🎧 Folge ${index + 1}</div>
+          <div class="episode-title">${episode.title}</div>
+          <div class="episode-desc">${episode.description}</div>
+        </div>
+      `).join('');
     }
 
     function renderParentsCover() {
       const book = currentBook();
-      document.getElementById('parents-cover-side').innerHTML = coverHtml({
-        title: `${book.title} – Pädagogisches Material`,
-        subtitle: 'Gesprächsimpulse und analoge Anschlussideen',
-        accent: '#ffd129',
-        soft: '#fff8e2',
-        badge: 'Eltern',
-        coverImage: book.coverImage,
-      }, { large: true });
-
-      const focus = document.getElementById('parents-focus');
-      focus.textContent = state.answer === 'ehrlich'
-        ? 'Wie klingt Ehrlichkeit, ohne hart zu werden?'
-        : state.answer === 'vorsichtig'
-          ? 'Wie können Ehrlichkeit und Freundlichkeit zusammengehen?'
-          : 'Gespräche über Rücksicht, Offenheit und Schweigen';
+      document.getElementById('parents-cover-side').innerHTML = `
+        <div class="module-head-vertical">
+          ${miniCoverHtml(book)}
+          <div class="badge badge-accent">Pädagogische Ebene</div>
+          <h2>Pädagogisches Material</h2>
+          <p class="desc">Hier finden Eltern und Begleitpersonen Gesprächsimpulse, Wertebezug und analoge Anschlussideen zur ausgewählten Erzählwelt.</p>
+        </div>
+      `;
     }
 
-    function render() {
-      views.forEach(view => {
-        const el = document.getElementById(`view-${view}`);
-        el.classList.toggle('hidden', state.view !== view);
+    function gamificationContent() {
+      const book = currentBook();
+      if (book.id === 'gift') {
+        return {
+          intro: 'Hier wird die Erzählwelt spielerisch vertieft – mit kleinen Aufgaben rund um Gefühle, Ehrlichkeit und Perspektivwechsel.',
+          items: [
+            { kicker: 'Gefühl', title: 'Gefühlsrad', description: 'Wähle aus, wie Adam sich in drei Momenten fühlen könnte.' },
+            { kicker: 'Sprache', title: 'Wahr oder freundlich?', description: 'Ordne Aussagen danach, ob sie ehrlich, freundlich oder beides sind.' },
+            { kicker: 'Challenge', title: 'Mutpunkte', description: 'Sammle Sterne für Formulierungen, die offen und rücksichtsvoll zugleich sind.' },
+            { kicker: 'Kreativ', title: 'Lians Geschenkstudio', description: 'Erfinde ein eigenes Geschenk und erzähle, warum es jemandem guttun könnte.' }
+          ]
+        };
+      }
+      if (book.id === 'elections') {
+        return {
+          intro: 'Spielerische Mini-Module helfen Kindern, Regeln, Wahlen und Fairness besser zu verstehen.',
+          items: [
+            { kicker: 'Wahl', title: 'Tierstimmen zählen', description: 'Sammle Stimmen und entdecke, warum jede Stimme wichtig ist.' },
+            { kicker: 'Fairness', title: 'Fairness-Challenge', description: 'Entscheide in kleinen Spielsituationen, was für alle fair wäre.' },
+            { kicker: 'Check', title: 'Versprechen prüfen', description: 'Welche Aussagen klingen gut und welche sind wirklich realistisch?' },
+            { kicker: 'Gemeinschaft', title: 'Zoo-Rat', description: 'Baue gemeinsam eine faire Regel für eure Gruppe oder Familie.' }
+          ]
+        };
+      }
+      if (book.id === 'papa') {
+        return {
+          intro: 'Hier wird die Geschichte über kleine, ruhige Spielmomente vertieft, die Vorfreude, Nähe und Erinnerungen aufnehmen.',
+          items: [
+            { kicker: 'Ritual', title: 'Vorfreude-Kalender', description: 'Sammle kleine schöne Momente bis zum nächsten gemeinsamen Tag.' },
+            { kicker: 'Erinnerung', title: 'Erinnerungsfunken', description: 'Wähle Bilder oder Wörter aus, die an Papa erinnern.' },
+            { kicker: 'Gefühl', title: 'Gefühlsbarometer', description: 'Zeige spielerisch, wie sich Warten an unterschiedlichen Tagen anfühlen kann.' },
+            { kicker: 'Mission', title: 'Morgen-Mission', description: 'Plane eine kleine Wunschszene für den nächsten gemeinsamen Moment.' }
+          ]
+        };
+      }
+      return {
+        intro: 'Spielerische Aufgaben machen Mut, Fantasie und Abenteuerlust in kleinen Interaktionen erlebbar.',
+        items: [
+          { kicker: 'Mut', title: 'Piratenmut', description: 'Wähle kleine Mutproben, die zu deinem Dino-Abenteuer passen.' },
+          { kicker: 'Suche', title: 'Schatzkarte', description: 'Verbinde Hinweise und finde den nächsten Traum-Schritt.' },
+          { kicker: 'Rolle', title: 'Wer bin ich heute?', description: 'Wähle Rollen, Stärken und neue Seiten deiner Figur aus.' },
+          { kicker: 'Sterne', title: 'Abenteuerpunkte', description: 'Sammle Sterne für Neugier, Fantasie und freundliche Entscheidungen.' }
+        ]
+      };
+    }
+
+    function renderGamificationCover() {
+      const book = currentBook();
+      document.getElementById('gamification-cover-side').innerHTML = `
+        <div class="module-head-vertical">
+          ${miniCoverHtml(book)}
+          <div class="badge">Gamification-Ebene</div>
+          <h2>Gamification</h2>
+          <p class="desc">Hier wird die Erzählwelt durch kleine Missionen, Sammelmomente und spielerische Aufgaben erweitert.</p>
+        </div>
+      `;
+    }
+
+    function renderGamificationContent() {
+      const content = gamificationContent();
+      document.getElementById('gamification-intro').textContent = content.intro;
+      document.getElementById('gamification-grid').innerHTML = content.items.map(item => `
+        <div class="episode-card">
+          <div class="episode-kicker">✨ ${item.kicker}</div>
+          <div class="episode-title">${item.title}</div>
+          <div class="episode-desc">${item.description}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderParentsContent() {
+      const content = parentsContent();
+      document.getElementById('parents-focus').textContent = content.focus;
+      document.getElementById('parents-questions').innerHTML = content.questions.map(question => `<li>${question}</li>`).join('');
+      document.getElementById('parents-activity').textContent = content.activity;
+    }
+
+    function renderBreadcrumb() {
+      const book = currentBook();
+      const items = [];
+      items.push({ label: 'Carica Story Hub', target: state.view === 'library' ? null : 'library' });
+
+      if (state.view === 'library') items.push({ label: 'Bibliothek', target: null });
+      if (state.view === 'hub') items.push({ label: book.title, target: null });
+      if (state.view === 'story') {
+        items.push({ label: book.title, target: 'hub' });
+        items.push({ label: 'Zur Geschichte', target: null });
+      }
+      if (state.view === 'audio') {
+        items.push({ label: book.title, target: 'hub' });
+        items.push({ label: 'Weiteres Drama', target: null });
+      }
+      if (state.view === 'parents') {
+        items.push({ label: book.title, target: 'hub' });
+        items.push({ label: 'Pädagogisches Material', target: null });
+      }
+      if (state.view === 'gamification') {
+        items.push({ label: book.title, target: 'hub' });
+        items.push({ label: 'Gamification', target: null });
+      }
+
+      const breadcrumb = document.getElementById('breadcrumb');
+      breadcrumb.innerHTML = items.map((item, index) => {
+        const isLast = index === items.length - 1;
+        const crumbHtml = item.target
+          ? `<button class="crumb crumb-link" data-crumb-target="${item.target}">${item.label}</button>`
+          : `<span class="crumb ${isLast ? 'current' : ''}">${item.label}</span>`;
+        return `${crumbHtml}${!isLast ? '<span class="crumb-sep">›</span>' : ''}`;
+      }).join('');
+    }
+
+    function renderJourney() {
+      const steps = [
+        { key: 'hub', label: 'Story Hub', target: 'hub' },
+        { key: 'story', label: 'Geschichte', target: 'story' },
+        { key: 'audio', label: 'Drama', target: 'audio' },
+        { key: 'parents', label: 'Elternmaterial', target: 'parents' },
+        { key: 'gamification', label: 'Gamification', target: 'gamification' }
+      ];
+
+      const currentStep = state.view === 'hub' || state.view === 'library'
+        ? 0
+        : state.view === 'story'
+          ? 1
+          : state.view === 'audio'
+            ? 2
+            : state.view === 'parents'
+              ? 3
+              : state.view === 'gamification'
+                ? 4
+                : 0;
+
+      const journey = document.getElementById('journey');
+      journey.innerHTML = steps.map((step, index) => {
+        const cls = index < currentStep ? 'journey-step journey-link done' : index === currentStep ? 'journey-step current' : 'journey-step journey-link';
+        return index === currentStep
+          ? `<div class="${cls}">${step.label}</div>`
+          : `<button class="${cls}" data-journey-target="${step.target}">${step.label}</button>`;
+      }).join('');
+    }
+
+    function bindJourney() {
+      document.querySelectorAll('[data-journey-target]').forEach(btn => {
+        btn.onclick = () => setView(btn.getAttribute('data-journey-target'));
       });
+    }
 
-      const backBtn = document.getElementById('btn-back-library');
-      backBtn.classList.toggle('hidden', state.view === 'library');
-
-      renderBooks();
-      renderHub();
-      renderStoryCover();
-      renderAudioCover();
-      renderParentsCover();
-      bindDynamicButtons();
+    function bindBreadcrumb() {
+      document.querySelectorAll('[data-crumb-target]').forEach(btn => {
+        btn.onclick = () => setView(btn.getAttribute('data-crumb-target'));
+      });
     }
 
     function bindDynamicButtons() {
@@ -555,25 +2425,71 @@
       });
     }
 
+    function render() {
+      views.forEach(view => {
+        const el = document.getElementById(`view-${view}`);
+        if (el) el.classList.toggle('hidden', state.view !== view);
+      });
+
+      const appShell = document.getElementById('app-shell');
+      appShell.classList.toggle('hidden', state.view === 'loading' || state.view === 'onboarding');
+      document.getElementById('btn-back-library').classList.toggle('hidden', state.view === 'library' || state.view === 'loading' || state.view === 'onboarding' || state.history.length === 0);
+      document.getElementById('topbar-subnav').classList.toggle('hidden', state.view === 'library' || state.view === 'loading' || state.view === 'onboarding');
+
+      if (state.view === 'loading') {
+        startLoadingSequence();
+      } else {
+        stopLoadingSequence();
+      }
+
+      if (state.view !== 'loading' && state.view !== 'onboarding') {
+        renderBreadcrumb();
+        renderJourney();
+        renderBooks();
+        renderHub();
+        renderStoryCover();
+        renderStoryMain();
+        renderAudioCover();
+        renderParentsCover();
+        renderParentsContent();
+        renderGamificationCover();
+        renderGamificationContent();
+        bindDynamicButtons();
+        bindBreadcrumb();
+        bindJourney();
+      }
+
+      if (state.view === 'onboarding') {
+        bindOnboarding();
+      }
+    }
+
     document.getElementById('btn-restart').onclick = () => {
-      state.view = 'library';
+      state.view = 'loading';
       state.selectedBook = 'gift';
       state.answer = null;
+      state.history = [];
       render();
     };
 
-    document.getElementById('btn-back-library').onclick = () => setView('library');
+    document.getElementById('btn-back-library').onclick = goBackOnce;
     document.getElementById('btn-story-back').onclick = () => setView('hub');
     document.getElementById('btn-story-audio').onclick = () => setView('audio');
-    document.getElementById('btn-honest').onclick = () => { state.answer = 'ehrlich'; setView('parents'); };
-    document.getElementById('btn-careful').onclick = () => { state.answer = 'vorsichtig'; setView('parents'); };
+    document.getElementById('btn-honest').onclick = () => { state.answer = 'optionA'; setView('parents'); };
+    document.getElementById('btn-careful').onclick = () => { state.answer = 'optionB'; setView('parents'); };
     document.getElementById('btn-audio-back').onclick = () => setView('hub');
     document.getElementById('btn-audio-parents').onclick = () => setView('parents');
-    document.getElementById('btn-parents-back').onclick = () => setView('hub');
+    document.getElementById('btn-parents-back').onclick = () => setView('story');
     document.getElementById('btn-parents-audio').onclick = () => setView('audio');
+    document.getElementById('btn-start-conversation').onclick = () => {
+      const focus = document.getElementById('parents-focus');
+      if (focus) focus.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    };
+    document.getElementById('btn-game-back').onclick = () => setView('hub');
+    document.getElementById('btn-game-story').onclick = () => setView('story');
+    document.getElementById('btn-game-parents').onclick = () => setView('parents');
 
     render();
   </script>
 </body>
 </html>
-
